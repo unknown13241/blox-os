@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BLOXOS-BUILD-V13-IMAGE-FIX -->
+<!-- BLOXOS-BUILD-V14-GAME-FIX -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blox OS — Browse. Play. Repeat.</title>
@@ -1406,6 +1406,7 @@ async function loadUrl(raw, { push = true } = {}) {
   document.getElementById('proxyNotice').hidden = true;
   const openBtn = document.getElementById('noticeOpenExternal');
   if (openBtn) openBtn.hidden = true;
+  frame.removeAttribute('srcdoc');
   frame.style.display = 'block';
   frame.src = encodeTarget(url);
 }
@@ -1714,7 +1715,7 @@ async function playCloudGame(game) {
   original.onclick = () => window.open('https://www.google.com/search?q=' + encodeURIComponent(game.name + ' play online free'), '_blank', 'noopener');
   updateSaveButton();
   const gameFrame = document.getElementById('gameFrame');
-  gameFrame.srcdoc = '';
+  gameFrame.removeAttribute('srcdoc');
   gameFrame.src = 'about:blank';
   openModal('playModal');
 
@@ -1872,7 +1873,7 @@ async function playGame(game) {
   openModal('playModal');
 
   const gameFrame = document.getElementById('gameFrame');
-  gameFrame.srcdoc = '';
+  gameFrame.removeAttribute('srcdoc');
   if (game.lumin && window.Lumin) {
     gameFrame.src = 'about:blank';
     try {
