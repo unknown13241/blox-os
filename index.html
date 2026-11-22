@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BLOXOS-BUILD-V4-CLOUD-FIX -->
+<!-- BLOXOS-BUILD-V5-INAPP-BROWSER -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blox OS — Browse. Play. Repeat.</title>
@@ -325,6 +325,7 @@ svg { width: 18px; height: 18px; }
 .proxy-notice h2 { color: #fff; margin: 0; font-size: 20px; }
 .proxy-notice p { max-width: 520px; font-size: 13px; }
 .proxy-notice code { background: var(--surface-2); padding: 2px 6px; border-radius: 4px; color: #d8d8df; }
+.notice-actions { display: flex; gap: 9px; flex-wrap: wrap; justify-content: center; }
 
 /* ---------- Loader ---------- */
 .page-loader {
@@ -867,8 +868,11 @@ body.panic-hidden .os { visibility: hidden; }
             <div class="proxy-notice" id="proxyNotice" hidden>
               <div class="proxy-notice-mark">B.</div>
               <h2>Websites open in a new tab here.</h2>
-              <p>The CDN version can't proxy sites inside the app, so your site opens in a new tab. Games, Cloud, AI, reviews, and live presence work normally here. For a full in-app proxy, run <code>node server.js</code> or publish behind a tunnel.</p>
-              <button class="pill-btn primary" data-view="games">Back to games</button>
+              <p>The CDN version tries to load sites here first. If a site blocks it, use a Cloudflare Tunnel for a full in-app proxy.</p>
+              <div class="notice-actions">
+                <button class="pill-btn primary" id="noticeOpenExternal" hidden>Open in new tab ↗</button>
+                <button class="pill-btn" data-view="games">Back to games</button>
+              </div>
             </div>
           </div>
         </section>
@@ -1257,22 +1261,28 @@ async function loadUrl(raw, { push = true } = {}) {
         if (!/html/i.test(contentType)) throw new Error('Not HTML');
         frame.srcdoc = rewriteHtmlClient(await res.text(), url);
         hideLoader();
+        const openBtn = document.getElementById('noticeOpenExternal');
+        if (openBtn) openBtn.hidden = true;
         return;
       } catch {
         hideLoader();
       }
     }
-    // Default: open the real site cleanly in a new tab.
+    // Keep the user in the app. Offer a manual new-tab escape hatch instead
+    // of silently switching tabs.
     hideLoader();
-    window.open(url, '_blank', 'noopener');
     frame.style.display = 'none';
     const notice = document.getElementById('proxyNotice');
     notice.hidden = false;
     notice.querySelector('p').innerHTML =
-      `Opened <strong>${escapeHtml(prettyHost(url))}</strong> in a new tab. Turn on “In-app proxy on CDN” in Settings to try rendering it here — or use a tunnel for full browsing.`;
+      `Couldn't load <strong>${escapeHtml(prettyHost(url))}</strong> inside the app. Static CDNs can't proxy modern sites reliably — use a Cloudflare Tunnel for full in-app browsing.`;
+    const openBtn = document.getElementById('noticeOpenExternal');
+    if (openBtn) openBtn.hidden = false;
     return;
   }
   document.getElementById('proxyNotice').hidden = true;
+  const openBtn = document.getElementById('noticeOpenExternal');
+  if (openBtn) openBtn.hidden = true;
   frame.style.display = 'block';
   frame.src = encodeTarget(url);
 }
@@ -1301,6 +1311,10 @@ frame.addEventListener('load', () => {
   } catch { /* page escaped the proxy — keep last known URL */ }
 });
 
+document.getElementById('noticeOpenExternal').addEventListener('click', () => {
+  const tab = activeTab();
+  if (tab.url) window.open(tab.url, '_blank', 'noopener');
+});
 document.getElementById('addressForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const value = document.getElementById('osAddress').value;
@@ -1787,7 +1801,7 @@ const SETTINGS_KEY = 'bloxos.settings';
 const DEFAULT_SETTINGS = {
   theme: 'blue', wallpaper: '', compact: false,
   cloakTitle: '', cloakIcon: '', panicKey: '`',
-  sounds: true, searchEngine: 'duckduckgo', inAppProxy: false,
+  sounds: true, searchEngine: 'duckduckgo', inAppProxy: true,
 };
 const DEFAULT_FAVICON = (document.querySelector('link[rel="icon"]') || {}).href || '';
 let panicVisible = false;
