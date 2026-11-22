@@ -166,7 +166,43 @@ async function detectStaticMode() {
   }
 }
 
-function loadUrl(raw, { push = true } = {}) {
+/* Static/CDN browsing: try a public CORS proxy, then fall back to a new tab. */
+const CDN_PROXY = 'https://api.allorigins.win/raw?url=';
+const cdnUrl = (url) => CDN_PROXY + encodeURIComponent(url);
+
+function skipClientUrl(value) {
+  return /^\s*(?:#|javascript:|data:|mailto:|tel:|about:|blob:)/i.test(value);
+}
+
+function proxifyClient(value, base) {
+  if (skipClientUrl(value)) return value;
+  try {
+    const absolute = new URL(value, base).href;
+    if (!/^https?:$/.test(new URL(absolute).protocol)) return value;
+    return cdnUrl(absolute);
+  } catch { return value; }
+}
+
+function rewriteHtmlClient(html, base) {
+  let out = html.replace(/<base\b[^>]*>/gi, '');
+  out = out.replace(
+    /(\b(?:href|src|action|poster|background|data-src|data-href|formaction)\s*=\s*)(["'])([\s\S]*?)\2/gi,
+    (m, prefix, quote, value) => skipClientUrl(value) ? m : prefix + quote + proxifyClient(value, base) + quote
+  );
+  out = out.replace(
+    /(\bsrcset\s*=\s*)(["'])([\s\S]*?)\2/gi,
+    (m, prefix, quote, value) => prefix + quote + value.split(',').map((entry) => {
+      const t = entry.trim();
+      const split = t.search(/\s/);
+      const url = split === -1 ? t : t.slice(0, split);
+      const rest = split === -1 ? '' : t.slice(split);
+      return skipClientUrl(url) ? t : proxifyClient(url, base) + rest;
+    }).join(', ') + quote
+  );
+  return out;
+}
+
+async function loadUrl(raw, { push = true } = {}) {
   const url = normalizeInput(raw);
   if (!url) return;
   const tab = activeTab();
@@ -184,10 +220,30 @@ function loadUrl(raw, { push = true } = {}) {
 
   showLoader();
   if (STATIC_MODE) {
-    hideLoader();
-    frame.style.display = 'none';
-    document.getElementById('proxyNotice').hidden = false;
-    return;
+    frame.style.display = 'block';
+    document.getElementById('proxyNotice').hidden = true;
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
+      const res = await fetch(cdnUrl(url), { signal: controller.signal });
+      clearTimeout(timeout);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const contentType = res.headers.get('content-type') || '';
+      if (!/html/i.test(contentType)) throw new Error('Not HTML');
+      const html = await res.text();
+      frame.srcdoc = rewriteHtmlClient(html, url);
+      hideLoader();
+      return;
+    } catch (err) {
+      hideLoader();
+      window.open(url, '_blank', 'noopener');
+      frame.style.display = 'none';
+      const notice = document.getElementById('proxyNotice');
+      notice.hidden = false;
+      notice.querySelector('p').innerHTML =
+        `Opened <strong>${escapeHtml(prettyHost(url))}</strong> in a new tab. This CDN link can't proxy sites inside the app — run <code>node server.js</code> or use a Cloudflare Tunnel for full in-app browsing.`;
+      return;
+    }
   }
   document.getElementById('proxyNotice').hidden = true;
   frame.style.display = 'block';
@@ -714,13 +770,33 @@ async function requestAi(messages, model, apiKey) {
     if (err.message && /limit|refus|sorry/i.test(err.message)) throw err;
   }
 
-  // Static CDN fallback. Free keyless AI providers block browser requests,
-  // so a personal (free) Groq key is required here.
+  // Static CDN fallback. Try the free provider directly first — it works from
+  // real https origins (GitHub Pages / jsDelivr) with a 45s cooldown.
+  const last = Number(localStorage.getItem('bloxos.aiLast') || 0);
+  const wait = 45000 - (Date.now() - last);
+  if (wait > 0) {
+    throw new Error(`Free AI limit: one message every 45 seconds. Wait ${Math.ceil(wait / 1000)}s.`);
+  }
+  localStorage.setItem('bloxos.aiLast', String(Date.now()));
+  try {
+    const res = await fetch('https://text.pollinations.ai/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: model === 'mistral' ? 'mistral' : 'openai',
+        messages: [{ role: 'system', content: CLIENT_AI_SYSTEM }, ...messages],
+      }),
+    });
+    if (res.ok) {
+      return { ok: true, answer: (await res.text()).slice(0, 8000), provider: 'Free tier' };
+    }
+  } catch { /* try the personal key below */ }
+
   const key = (apiKey || '').trim();
   if (!key) {
-    throw new Error('AI on a CDN link needs a free Groq key. Get one at console.groq.com, paste it in the AI panel, and try again. (The server link works without a key.)');
+    throw new Error('AI is busy right now. Get a free key at console.groq.com, paste it in the AI panel, or try again shortly.');
   }
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
     body: JSON.stringify({
@@ -729,8 +805,8 @@ async function requestAi(messages, model, apiKey) {
       max_tokens: 1024,
     }),
   });
-  if (!res.ok) throw new Error('Groq key rejected (' + res.status + '). Check the key in the AI panel.');
-  const data = await res.json();
+  if (!groqRes.ok) throw new Error('Groq key rejected (' + groqRes.status + '). Check the key in the AI panel.');
+  const data = await groqRes.json();
   const answer = (data.choices && data.choices[0] && data.choices[0].message
     ? data.choices[0].message.content : '').slice(0, 8000);
   return { ok: true, answer, provider: 'Groq (your key)' };
