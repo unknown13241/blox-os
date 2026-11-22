@@ -1,0 +1,56 @@
+🎮 BLOX OS — CUSTOM LINKS (Discord-ready)
+=========================================
+
+MAIN LINKS
+----------
+Local site:      http://localhost:3000
+Custom hostname: http://blox.os:3000   (after adding the hosts-file entry)
+LAN / network:   http://192.168.1.220:3000
+Public URL:      (set your CDN / Cloudflare Tunnel / ngrok URL in Settings → Share links)
+jsDelivr:        https://cdn.jsdelivr.net/gh/YOUR_USERNAME/blox-os@latest/
+GitHub Pages:    https://YOUR_USERNAME.github.io/blox-os/
+
+IN-APP PAGES
+------------
+Home:            http://localhost:3000/#home
+Games:           http://localhost:3000/#games
+Cloud (485):     http://localhost:3000/#cloud
+AI:              http://localhost:3000/#ai
+Browser proxy:   http://localhost:3000/#browse
+
+DISCORD POST TEMPLATE (copy/paste)
+---------------------------------
+🎮 Blox OS — browse the web and play 1,600+ games.
+
+• 1,169 browser games (search, filters, random)
+• 485 cloud titles with real cover art
+• Built-in AI assistant with safety limits
+• Live online counter + community reviews
+
+Website: http://localhost:3000
+Public:  (replace with your public URL)
+
+=========================================
+HOW TO GET A PUBLIC LINK
+-----------------------------------------
+1) Cloudflare Tunnel (free):
+   cloudflared tunnel --url http://localhost:3000
+   Paste the https://....trycloudflare.com URL into
+   Settings → Share links → Public URL.
+
+2) ngrok (free):
+   ngrok http 3000
+
+3) Custom domain on your own server:
+   Point a DNS A/AAAA record at your machine, run a reverse
+   proxy (nginx/Caddy) to port 3000, then add the domain in
+   Settings → Share links.
+
+HOW TO USE http://blox.os:3000
+--------------------------------
+Add this line to C:\Windows\System32\drivers\etc\hosts
+(open Notepad as Administrator):
+
+127.0.0.1   blox.os
+
+Then open http://blox.os:3000 in your browser.

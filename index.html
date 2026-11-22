@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blox OS — Browse. Play. Repeat.</title>
+  <meta name="description" content="Blox OS — a browser-style web proxy and game library." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Agbalumo&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%23111113%22/><text x=%2250%22 y=%2274%22 font-size=%2264%22 font-family=%22sans-serif%22 font-weight=%22700%22 fill=%22white%22 text-anchor=%22middle%22>B.</text></svg>" />
+</head>
+<body>
+  <div class="os">
+    <!-- ===== OS title bar with tabs ===== -->
+    <header class="os-top">
+      <button class="os-brand" id="osBrand" title="Blox OS">B.</button>
+      <div class="tabs" id="tabBar"></div>
+      <button class="tab-add" id="newTabBtn" title="New tab">+</button>
+      <div class="os-top-spacer"></div>
+    </header>
+
+    <!-- ===== Browser toolbar ===== -->
+    <div class="os-toolbar">
+      <div class="nav-controls">
+        <button class="tool-btn" id="osBack" title="Back" aria-label="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button class="tool-btn" id="osForward" title="Forward" aria-label="Forward">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button class="tool-btn" id="osReload" title="Reload" aria-label="Reload">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        </button>
+        <button class="tool-btn" id="osHome" title="Home" aria-label="Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/></svg>
+        </button>
+      </div>
+
+      <div class="region-pill"><span>🇵🇱</span> Warsaw, Poland</div>
+
+      <form class="address-bar" id="addressForm">
+        <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        <input id="osAddress" type="text" value="blox://browser" aria-label="Address bar" autocomplete="off" spellcheck="false" />
+      </form>
+
+      <button class="tool-btn" id="osExternal" title="Open in new tab" aria-label="Open in new tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg>
+      </button>
+    </div>
+
+    <!-- ===== OS body ===== -->
+    <div class="os-body">
+      <aside class="os-sidebar" aria-label="Blox OS navigation">
+        <button class="side-btn active" data-view="home" data-tip="Home" aria-label="Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/></svg>
+        </button>
+        <button class="side-btn" data-view="games" data-tip="Games" aria-label="Games">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
+        </button>
+        <button class="side-btn" data-view="ai" data-tip="AI" aria-label="AI">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z"/><path d="M19 16v4M21 18h-4"/></svg>
+        </button>
+        <button class="side-btn" data-view="cloud" data-tip="Cloud" aria-label="Cloud">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+        </button>
+        <button class="side-btn" id="osReviews" data-tip="Reviews" aria-label="Reviews">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9z"/></svg>
+        </button>
+        <div class="side-spacer"></div>
+        <button class="side-btn" id="osSettings" data-tip="Settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <button class="side-btn discord" id="osDiscord" data-tip="Community" aria-label="Community">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.3.6a13.5 13.5 0 0 1 4 1.9 15.4 15.4 0 0 0-11.9 0 13.5 13.5 0 0 1 4-1.9L10.9 3a19.8 19.8 0 0 0-4.9 1.4C3.6 8.2 2.8 11.9 3.2 15.6a19.9 19.9 0 0 0 6 3l1.3-2a12.9 12.9 0 0 1-2-1l.5-.4a14.2 14.2 0 0 0 12 0l.5.4a12.9 12.9 0 0 1-2 1l1.3 2a19.9 19.9 0 0 0 6-3c.5-4.3-.7-8-3.5-11.2ZM9.3 13.5c-1.2 0-2.1-1.1-2.1-2.5s.9-2.5 2.1-2.5 2.1 1.1 2.1 2.5-.9 2.5-2.1 2.5Zm7.4 0c-1.2 0-2.1-1.1-2.1-2.5s.9-2.5 2.1-2.5 2.1 1.1 2.1 2.5-.9 2.5-2.1 2.5Z"/></svg>
+        </button>
+      </aside>
+
+      <div class="os-content">
+        <button class="online-pill" id="onlinePill" title="See who's online"><span class="online-dot"></span> Online: <span id="onlineCount">—</span></button>
+
+        <!-- ===== START PAGE ===== -->
+        <section id="view-home" class="view active">
+          <div class="start-page">
+            <h1 class="start-logo">Blox.</h1>
+            <form class="start-search" id="startSearchForm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="startSearchInput" type="text" placeholder="Search the web…" aria-label="Search the web" autocomplete="off" />
+            </form>
+            <div class="start-shortcuts">
+              <button class="shortcut" data-shortcut="games" title="Games" aria-label="Games">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><circle cx="16" cy="11" r="1"/><circle cx="18" cy="13" r="1"/></svg>
+              </button>
+              <button class="shortcut" data-shortcut="random" title="Random game" aria-label="Random game">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+              </button>
+              <button class="shortcut" data-shortcut="library" title="Your library" aria-label="Your library">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="rail-label">Featured in Blox OS</div>
+          <div class="rail-window"><div class="featured-rail" id="featuredRail"></div></div>
+        </section>
+
+        <!-- ===== GAMES ===== -->
+        <section id="view-games" class="view">
+          <div class="games-head">
+            <div>
+              <div class="games-eyebrow">Arcade / Library</div>
+              <h2>Play something.</h2>
+              <p>Real browser games and local favorites. External games try the proxy first — use <strong>Open original</strong> when a game refuses to embed.</p>
+            </div>
+            <button class="pill-btn primary" id="addGameBtn">+ Add game</button>
+          </div>
+          <div class="games-toolbar">
+            <div class="games-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="gameSearch" type="text" placeholder="Search 3 games…" aria-label="Search games" />
+            </div>
+            <button class="pill-btn" id="randomGameBtn" title="Play a random game">✦ random</button>
+            <div class="filters" id="categoryFilters"></div>
+          </div>
+          <div class="game-grid" id="allGames"></div>
+          <p class="empty-state" id="gamesEmpty" hidden>No games found. Try another search or add one.</p>
+          <div class="load-more-wrap" id="loadMoreWrap" hidden><button class="pill-btn" id="loadMoreBtn">Load more games ↓</button></div>
+        </section>
+
+        <!-- ===== CLOUD ===== -->
+        <section id="view-cloud" class="view">
+          <div class="cloud-page">
+            <div class="cloud-head">
+              <div class="tag">Cloud library</div>
+              <h2 class="page-title">Cloud titles.</h2>
+              <p>485 cloud games with real cover art. Titles that also exist in the browser library launch instantly; others need a cloud streaming slot from the provider.</p>
+            </div>
+            <div class="cloud-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="cloudSearch" type="text" placeholder="Search 485 cloud titles…" aria-label="Search cloud titles" />
+            </div>
+            <div class="cloud-grid" id="cloudGrid"></div>
+            <div class="load-more-wrap" id="cloudMoreWrap" hidden><button class="pill-btn" id="cloudMoreBtn">Load more titles ↓</button></div>
+          </div>
+        </section>
+
+        <!-- ===== AI ===== -->
+        <section id="view-ai" class="view">
+          <div class="ai-shell">
+            <aside class="ai-side">
+              <button class="ai-new" id="aiNewChat">+ New chat</button>
+              <div class="ai-history" id="aiHistory"></div>
+              <div class="ai-side-bottom">
+                <label>Provider<select id="aiProvider"><option>Blox AI</option></select></label>
+                <label>Model<select id="aiModel"><option value="openai">Aya / OpenAI</option><option value="mistral">Mistral</option></select></label>
+                <div class="ai-usage">
+                  <div class="usage-head"><span>Usage</span><span id="aiUsagePct">0%</span></div>
+                  <div class="bar"><span id="aiUsageBar"></span></div>
+                  <div class="usage-row"><span>Requests</span><strong id="aiRequests">0 / 15</strong></div>
+                  <div class="usage-row"><span>Tokens</span><strong id="aiTokens">0 / 61K</strong></div>
+                  <div class="usage-note" id="aiUsageNote">1 message / 45s on free tier</div>
+                </div>
+                <label class="ai-key-label">Groq key (optional)
+                  <input id="aiKey" type="password" placeholder="gsk_…" autocomplete="off" />
+                </label>
+                <button class="ai-reset" id="aiReset">Reset local usage</button>
+              </div>
+            </aside>
+            <div class="ai-main">
+              <div class="ai-top"><button class="ai-menu" id="aiMenu" aria-label="Menu">☰</button><span id="aiChatTitle">New chat</span></div>
+              <div class="ai-thread" id="aiThread">
+                <div class="ai-greeting" id="aiGreeting">
+                  <h2>Good Evening!</h2>
+                  <div class="ai-suggestions">
+                    <button data-suggest="Write a poem about the ocean.">Write a poem about the ocean.</button>
+                    <button data-suggest="Explain quantum physics simply.">Explain quantum physics simply.</button>
+                    <button data-suggest="Give me a healthy dinner recipe.">Give me a healthy dinner recipe.</button>
+                    <button data-suggest="Help me debug a JavaScript function.">Help me debug a JavaScript function.</button>
+                  </div>
+                </div>
+              </div>
+              <form class="ai-input-bar" id="aiForm">
+                <input id="aiInput" type="text" placeholder="Message Blox AI…" aria-label="Message Blox AI" autocomplete="off" />
+                <button type="submit" aria-label="Send">↑</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== BROWSER ===== -->
+        <section id="view-browse" class="view">
+          <div class="browser-stage">
+            <iframe id="proxyFrame" title="Proxied website" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-modals allow-pointer-lock"></iframe>
+            <div class="proxy-notice" id="proxyNotice" hidden>
+              <div class="proxy-notice-mark">B.</div>
+              <h2>The browser proxy needs the self-hosted server.</h2>
+              <p>This CDN link runs in static mode. Games, Cloud, AI, reviews, and live presence all work here — but loading websites through the proxy requires running <code>node server.js</code> or publishing behind a tunnel.</p>
+              <button class="pill-btn primary" data-view="games">Back to games</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="os-status">
+          <span>Ping: <strong>20ms</strong></span>
+          <span>V1.12</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page loader -->
+  <div id="page-loader" class="page-loader" hidden>
+    <div class="loader-mark">B.</div>
+    <p>Loading<span class="load-dots"><span>.</span><span>.</span><span>.</span></span></p>
+  </div>
+
+  <!-- ===== Play modal ===== -->
+  <div class="modal" id="playModal" hidden>
+    <div class="modal-backdrop" data-close="playModal"></div>
+    <div class="modal-panel modal-game">
+      <div class="modal-head">
+        <div>
+          <div class="modal-eyebrow" id="playCategory">Game</div>
+          <h3 id="playTitle">Game</h3>
+          <p id="playDesc"></p>
+        </div>
+        <div class="modal-actions">
+          <button class="pill-btn" id="saveGameBtn">☆ Save</button>
+          <button class="pill-btn" id="openOriginalBtn" hidden>Open original ↗</button>
+          <button class="close-btn" data-close="playModal" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <div class="external-note" id="externalNote" hidden>
+        This is an external game. If it doesn't load below, use <strong>Open original</strong> to play on its own site.
+      </div>
+      <iframe id="gameFrame" title="Game"></iframe>
+    </div>
+  </div>
+
+  <!-- ===== Add game modal ===== -->
+  <div class="modal" id="addModal" hidden>
+    <div class="modal-backdrop" data-close="addModal"></div>
+    <div class="modal-panel modal-form">
+      <div class="modal-head">
+        <div><div class="modal-eyebrow">Your library</div><h3>Add a game</h3></div>
+        <button class="close-btn" data-close="addModal" aria-label="Close">✕</button>
+      </div>
+      <form id="addGameForm" class="stack-form">
+        <label><span>Name</span><input name="name" required placeholder="e.g. My Game" /></label>
+        <label><span>Description</span><input name="description" placeholder="A short description" /></label>
+        <label><span>Category</span><input name="category" placeholder="e.g. Arcade" value="Custom" /></label>
+        <label><span>Icon (emoji)</span><input name="icon" placeholder="🎮" maxlength="4" /></label>
+        <label><span>Game URL</span><input name="url" required placeholder="https://… or /games/my-game.html" /></label>
+        <label class="check-row"><input type="checkbox" name="proxied" /><span>Route through proxy (for external sites)</span></label>
+        <label class="check-row"><input type="checkbox" name="external" /><span>External game (show "Open original" button)</span></label>
+        <div class="form-actions">
+          <button type="button" class="pill-btn" data-close="addModal">Cancel</button>
+          <button type="submit" class="pill-btn primary">Add game</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Info modal (saved / settings / panels) ===== -->
+  <div class="modal" id="infoModal" hidden>
+    <div class="modal-backdrop" data-close="infoModal"></div>
+    <div class="modal-panel modal-form">
+      <div class="modal-head">
+        <div><div class="modal-eyebrow">Blox OS</div><h3 id="infoTitle">Saved games</h3></div>
+        <button class="close-btn" data-close="infoModal" aria-label="Close">✕</button>
+      </div>
+      <div class="info-body" id="infoBody"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js"></script>
+  <script src="js/games-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

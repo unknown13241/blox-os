@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sketch Pad</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; height: 100vh; display: flex; flex-direction: column;
+    align-items: center; background: #070912; color: #f2f3ff;
+    font-family: "Segoe UI", sans-serif;
+  }
+  .bar {
+    display: flex; align-items: center; flex-wrap: wrap; justify-content: center;
+    gap: 10px; padding: 14px; width: 100%;
+    background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  h1 { font-size: 18px; margin: 0 12px 0 0; }
+  h1 span { color: #00d4ff; }
+  .colors { display: flex; gap: 6px; }
+  .swatch {
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .swatch.active { border-color: #fff; transform: scale(1.15); }
+  input[type=range] { width: 110px; accent-color: #7c5cff; }
+  button {
+    border: 1px solid rgba(255,255,255,0.15); cursor: pointer; font-family: inherit;
+    background: rgba(255,255,255,0.07); color: #fff;
+    padding: 8px 14px; border-radius: 9px; font-size: 13px;
+  }
+  button:hover { background: rgba(124,92,255,0.4); }
+  .stage { flex: 1; width: 100%; display: grid; place-items: center; padding: 16px; }
+  canvas {
+    background: #fff; border-radius: 12px; cursor: crosshair;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.5); max-width: 100%; touch-action: none;
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <h1>SKETCH <span>PAD</span></h1>
+    <div class="colors" id="colors"></div>
+    <label style="font-size:12px;color:#9a9db8">Size <input id="size" type="range" min="1" max="40" value="5" /></label>
+    <button id="eraser">🧽 Eraser</button>
+    <button id="clear">🗑 Clear</button>
+    <button id="save">💾 Save PNG</button>
+  </div>
+  <div class="stage"><canvas id="canvas"></canvas></div>
+
+<script>
+(function () {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const colorsEl = document.getElementById('colors');
+  const sizeInput = document.getElementById('size');
+  const PALETTE = ['#000000','#ff4ecd','#7c5cff','#00d4ff','#37e6a0','#ffb300','#ff3b3b','#ffffff'];
+  let color = PALETTE[0];
+  let drawing = false;
+  let last = null;
+
+  function resize() {
+    const stage = canvas.parentElement;
+    const w = Math.min(stage.clientWidth - 32, 1000);
+    const h = Math.min(stage.clientHeight - 32, 620);
+    // preserve drawing on resize
+    const snapshot = document.createElement('canvas');
+    snapshot.width = canvas.width; snapshot.height = canvas.height;
+    if (canvas.width) snapshot.getContext('2d').drawImage(canvas, 0, 0);
+    canvas.width = w; canvas.height = h;
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+    if (snapshot.width) ctx.drawImage(snapshot, 0, 0);
+  }
+
+  PALETTE.forEach((c) => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch' + (c === color ? ' active' : '');
+    sw.style.background = c;
+    sw.title = c;
+    sw.addEventListener('click', () => {
+      color = c;
+      document.querySelectorAll('.swatch').forEach((s) => s.classList.remove('active'));
+      sw.classList.add('active');
+    });
+    colorsEl.appendChild(sw);
+  });
+
+  document.getElementById('eraser').addEventListener('click', () => {
+    color = '#ffffff';
+    document.querySelectorAll('.swatch').forEach((s) => s.classList.remove('active'));
+  });
+
+  function pos(e) {
+    const r = canvas.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * (canvas.width / r.width), y: (e.clientY - r.top) * (canvas.height / r.height) };
+  }
+
+  canvas.addEventListener('pointerdown', (e) => {
+    drawing = true; last = pos(e);
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    ctx.arc(last.x, last.y, sizeInput.value / 2, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!drawing) return;
+    const p = pos(e);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = sizeInput.value;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+    last = p;
+  });
+  window.addEventListener('pointerup', () => { drawing = false; last = null; });
+
+  document.getElementById('clear').addEventListener('click', () => {
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  });
+  document.getElementById('save').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.download = 'sketch.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  });
+
+  resize();
+  window.addEventListener('resize', resize);
+})();
+</script>
+</body>
+</html>
