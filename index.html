@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BLOXOS-BUILD-V7-CLEAN-READER -->
+<!-- BLOXOS-BUILD-V10-CHAT-PILL -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blox OS — Browse. Play. Repeat.</title>
@@ -185,6 +185,7 @@ svg { width: 18px; height: 18px; }
   font-family: inherit; cursor: pointer; backdrop-filter: blur(6px);
 }
 .online-pill:hover { border-color: #454550; color: #fff; }
+.online-pill[hidden] { display: none; }
 .online-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 8px rgba(74,222,128,.6); }
 .os-status {
   position: absolute; bottom: 12px; right: 18px; z-index: 20;
@@ -448,6 +449,34 @@ body.panic-hidden .os { visibility: hidden; }
   background: var(--bg); color: var(--muted); font-size: 13px;
 }
 
+/* ---------- Chat room ---------- */
+.chat-shell { display: flex; height: 100%; min-height: 0; }
+.chat-side {
+  width: 230px; flex-shrink: 0; padding: 20px 14px; gap: 12px;
+  display: flex; flex-direction: column; background: var(--bg-2);
+  border-right: 1px solid var(--border-soft);
+}
+.chat-side-head { display: flex; align-items: center; gap: 8px; color: var(--text); font-weight: 700; font-size: 14px; }
+.chat-side p { font-size: 11.5px; color: var(--muted); margin: 0 !important; }
+.chat-side label { display: flex; flex-direction: column; gap: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.chat-side input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 9px 10px; color: var(--text); font-size: 12px; }
+.chat-info { font-size: 11px; color: var(--muted-2); line-height: 1.5; border-top: 1px solid var(--border-soft); padding-top: 12px; margin-top: auto; }
+.chat-clear-wrap button { width: 100%; }
+.chat-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chat-top { height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid var(--border-soft); font-size: 13px; color: var(--text); }
+.chat-messages { flex: 1; overflow-y: auto; padding: 20px 26px; display: flex; flex-direction: column; gap: 12px; }
+.chat-msg { max-width: 72%; padding: 9px 13px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+.chat-msg.mine { align-self: flex-end; background: var(--accent-soft); border-color: var(--accent); }
+.chat-msg .meta { display: flex; gap: 8px; align-items: baseline; margin-bottom: 3px; }
+.chat-msg .who { font-size: 11px; font-weight: 700; color: var(--accent-2); }
+.chat-msg .time { font-size: 10px; color: var(--muted-2); }
+.chat-msg .body { font-size: 13px; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+.chat-empty { margin: auto; color: var(--muted-2); font-size: 13px; text-align: center; }
+.chat-compose { flex-shrink: 0; display: flex; gap: 9px; padding: 14px 18px 20px; border-top: 1px solid var(--border-soft); }
+.chat-compose input { flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 11px 16px; color: var(--text); font-size: 13px; }
+.chat-compose input:focus { outline: 0; border-color: var(--accent); }
+.chat-offline { margin: auto; text-align: center; color: var(--muted); font-size: 13px; max-width: 420px; }
+
 /* ---------- Responsive ---------- */
 /* ---------- Cloud catalog ---------- */
 .cloud-page { height: 100%; overflow-y: auto; padding: 34px 26px 60px; }
@@ -629,6 +658,9 @@ body.panic-hidden .os { visibility: hidden; }
         <button class="side-btn" data-view="cloud" data-tip="Cloud" aria-label="Cloud">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
         </button>
+        <button class="side-btn" data-view="chat" data-tip="Chat room" aria-label="Chat room">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
         <button class="side-btn" id="osReviews" data-tip="Reviews" aria-label="Reviews">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9z"/></svg>
         </button>
@@ -705,6 +737,29 @@ body.panic-hidden .os { visibility: hidden; }
             </div>
             <div class="cloud-grid" id="cloudGrid"></div>
             <div class="load-more-wrap" id="cloudMoreWrap" hidden><button class="pill-btn" id="cloudMoreBtn">Load more titles ↓</button></div>
+          </div>
+        </section>
+
+        <!-- ===== CHAT ===== -->
+        <section id="view-chat" class="view">
+          <div class="chat-shell">
+            <div class="chat-side">
+              <div class="chat-side-head"><span class="online-dot"></span> Blox Chat</div>
+              <p id="chatOnlineText">Connecting…</p>
+              <label>Your name
+                <input id="chatName" type="text" maxlength="24" placeholder="Guest" />
+              </label>
+              <div class="chat-info">Messages are shared with everyone using this Blox OS server. Be kind.</div>
+              <div class="chat-clear-wrap"><button class="pill-btn" id="chatClearLocal">Clear name</button></div>
+            </div>
+            <div class="chat-main">
+              <div class="chat-top"><strong>Room: general</strong><button class="pill-btn" id="chatRefresh">↻ Refresh</button></div>
+              <div class="chat-messages" id="chatMessages"></div>
+              <form class="chat-compose" id="chatForm">
+                <input id="chatInput" type="text" maxlength="400" placeholder="Type a message…" autocomplete="off" />
+                <button class="pill-btn primary" type="submit">Send</button>
+              </form>
+            </div>
           </div>
         </section>
 
@@ -812,6 +867,7 @@ body.panic-hidden .os { visibility: hidden; }
                   <button class="pill-btn primary" id="saveSettingLinks">Save &amp; refresh</button>
                   <button class="pill-btn" id="copySettingLinks">Copy links</button>
                   <a class="pill-btn" href="custom-links.txt" download>Download .txt</a>
+                  <a class="pill-btn" href="https://discord.gg/NQzVKXG6p" target="_blank" rel="noopener">Join Discord ↗</a>
                 </div>
               </div>
             </div>
@@ -1061,6 +1117,7 @@ const views = {
   home: document.getElementById('view-home'),
   games: document.getElementById('view-games'),
   cloud: document.getElementById('view-cloud'),
+  chat: document.getElementById('view-chat'),
   settings: document.getElementById('view-settings'),
   ai: document.getElementById('view-ai'),
   browse: document.getElementById('view-browse'),
@@ -1085,19 +1142,26 @@ function updateAddress() {
   const value = tab.view === 'browse' && tab.url ? tab.url
     : tab.view === 'games' ? 'blox://games'
     : tab.view === 'cloud' ? 'blox://cloud'
+    : tab.view === 'chat' ? 'blox://chat'
     : tab.view === 'ai' ? 'blox://ai'
     : tab.view === 'settings' ? 'blox://settings'
     : 'blox://browser';
   document.getElementById('osAddress').value = value;
 }
 
+function syncOnlinePill(view) {
+  const pill = document.getElementById('onlinePill');
+  if (pill) pill.hidden = view === 'chat';
+}
+
 function setView(name, { push = true } = {}) {
   if (!views[name]) name = 'home';
+  syncOnlinePill(name);
   const tab = activeTab();
   tab.view = name;
   if (name !== 'browse') tab.url = null;
   tab.title = name === 'games' ? 'Games' : name === 'cloud' ? 'Cloud'
-    : name === 'ai' ? 'AI' : name === 'settings' ? 'Settings' : name === 'home' ? 'Home'
+    : name === 'chat' ? 'Chat' : name === 'ai' ? 'AI' : name === 'settings' ? 'Settings' : name === 'home' ? 'Home'
     : prettyHost(tab.url || '') || 'Browser';
 
   Object.entries(views).forEach(([key, el]) => el.classList.toggle('active', key === name));
@@ -1106,6 +1170,7 @@ function setView(name, { push = true } = {}) {
   );
   if (name === 'ai') { renderAiHistory(); renderAiThread(); }
   if (name === 'settings') renderSettings();
+  if (name === 'chat') enterChat();
   renderTabs();
   updateAddress();
   if (push && location.hash !== '#' + name) history.pushState(null, '', '#' + name);
@@ -1134,12 +1199,14 @@ function setActiveTab(id) {
   if (!tabs.some((t) => t.id === id)) return;
   activeTabId = id;
   const tab = activeTab();
+  syncOnlinePill(tab.view);
   Object.entries(views).forEach(([key, el]) => el.classList.toggle('active', key === tab.view));
   document.querySelectorAll('.side-btn[data-view]').forEach((el) =>
     el.classList.toggle('active', el.dataset.view === tab.view)
   );
   if (tab.view === 'ai') { renderAiHistory(); renderAiThread(); }
   if (tab.view === 'settings') renderSettings();
+  if (tab.view === 'chat') enterChat();
   renderTabs();
   updateAddress();
 }
@@ -1848,6 +1915,102 @@ document.getElementById('addGameForm').addEventListener('submit', (e) => {
   playGame(game);
 });
 
+/* ---------------- Chat room ---------------- */
+
+const CHAT_NAME_KEY = 'bloxos.chatName';
+let chatLastTs = 0;
+let chatMessagesCache = [];
+let chatTimer = null;
+
+document.getElementById('chatName').value = localStorage.getItem(CHAT_NAME_KEY) || 'Guest';
+document.getElementById('chatName').addEventListener('change', (e) => {
+  const name = e.target.value.trim().slice(0, 24) || 'Guest';
+  localStorage.setItem(CHAT_NAME_KEY, name);
+  e.target.value = name;
+});
+document.getElementById('chatClearLocal').addEventListener('click', () => {
+  localStorage.removeItem(CHAT_NAME_KEY);
+  document.getElementById('chatName').value = 'Guest';
+});
+
+function updateChatOnlineLabel() {
+  const el = document.getElementById('chatOnlineText');
+  if (!el || !onlineData) return;
+  el.textContent = `${onlineData.online} ${onlineData.local ? 'tab(s) here' : 'people online'} right now`;
+}
+
+function renderChat() {
+  const box = document.getElementById('chatMessages');
+  if (!chatMessagesCache.length) {
+    box.innerHTML = '<div class="chat-empty">No messages yet. Say hello!</div>';
+    return;
+  }
+  const myName = (localStorage.getItem(CHAT_NAME_KEY) || 'Guest').toLowerCase();
+  box.innerHTML = chatMessagesCache.map((m) => {
+    const mine = String(m.name || '').toLowerCase() === myName;
+    const time = new Date(m.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `<div class="chat-msg ${mine ? 'mine' : ''}">
+      <div class="meta"><span class="who">${escapeHtml(m.name || 'Guest')}</span><span class="time">${time}</span></div>
+      <div class="body">${escapeHtml(m.text || '')}</div>
+    </div>`;
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+async function pollChat() {
+  try {
+    const res = await fetch('api/chat?since=' + chatLastTs, { cache: 'no-store' });
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) throw new Error('static');
+    const data = await res.json();
+    if (Array.isArray(data.messages) && data.messages.length) {
+      const seen = new Set(chatMessagesCache.map((m) => m.id));
+      data.messages.forEach((m) => {
+        if (!seen.has(m.id)) { chatMessagesCache.push(m); seen.add(m.id); }
+        if (m.ts > chatLastTs) chatLastTs = m.ts;
+      });
+      if (chatMessagesCache.length > 200) chatMessagesCache = chatMessagesCache.slice(-200);
+      renderChat();
+    }
+    updateChatOnlineLabel();
+  } catch {
+    document.getElementById('chatMessages').innerHTML =
+      '<div class="chat-offline">Chat needs the self-hosted Blox OS server. On a static CDN link there is no shared room — run <code>node server.js</code> or use a Cloudflare Tunnel to chat with everyone.</div>';
+    if (chatTimer) { clearInterval(chatTimer); chatTimer = null; }
+  }
+}
+
+document.getElementById('chatForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const name = document.getElementById('chatName').value.trim().slice(0, 24) || 'Guest';
+  localStorage.setItem(CHAT_NAME_KEY, name);
+  input.value = '';
+  try {
+    const res = await fetch('api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, text }),
+    });
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) throw new Error('static');
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Could not send.');
+    await pollChat();
+  } catch (err) {
+    input.value = text;
+    input.placeholder = err.message === 'static' ? 'Chat unavailable on static link' : err.message;
+  }
+});
+document.getElementById('chatRefresh').addEventListener('click', pollChat);
+
+function enterChat() {
+  pollChat();
+  if (!chatTimer) chatTimer = setInterval(pollChat, 4000);
+}
+
 /* ---------------- Settings ---------------- */
 
 const SETTINGS_KEY = 'bloxos.settings';
@@ -2247,8 +2410,9 @@ function showSaved() {
 
 document.getElementById('osReviews').addEventListener('click', showReviews);
 
+const DISCORD_INVITE = 'https://discord.gg/NQzVKXG6p';
 document.getElementById('osDiscord').addEventListener('click', () =>
-  showPanel('Community', '<p>Community chat isn’t connected in this local build.</p>'));
+  window.open(DISCORD_INVITE, '_blank', 'noopener'));
 
 document.addEventListener('click', (e) => {
   const play = e.target.closest('[data-play]');
@@ -2280,6 +2444,7 @@ async function updateOnline() {
       const data = await res.json();
       onlineData = { ...data, local: false };
       document.getElementById('onlineCount').textContent = data.online ?? '—';
+      updateChatOnlineLabel();
       return;
     }
   } catch { /* static hosting — use local presence below */ }
@@ -2294,6 +2459,7 @@ async function updateOnline() {
     localStorage.setItem('bloxos.localPresence', JSON.stringify(list));
     onlineData = { online: list.length, connections: list.length, users: [], local: true };
     document.getElementById('onlineCount').textContent = list.length;
+    updateChatOnlineLabel();
   } catch {
     document.getElementById('onlineCount').textContent = '—';
   }
@@ -2418,13 +2584,23 @@ Home:      ${origin}/#home
 Games:     ${origin}/#games
 Cloud:     ${origin}/#cloud
 AI:        ${origin}/#ai
+Chat:      ${origin}/#chat
 Browse:    ${origin}/#browse
 
+Discord:   ${DISCORD_INVITE}
 Public URL: ${publicUrl || '(add one in Settings → Share links)'}
 
 --- Discord post ---
 🎮 Blox OS — browse the web and play 1,600+ games.
-${publicUrl || origin}
+
+• 1,169 browser games (search, filters, random)
+• 485 cloud titles with real cover art
+• Built-in AI assistant with safety limits
+• Shared chat room + live online counter
+• Community reviews
+
+Website:  ${publicUrl || origin}
+Discord:  ${DISCORD_INVITE}
 `;
 }
 
