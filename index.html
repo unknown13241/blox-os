@@ -69,7 +69,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9z"/></svg>
         </button>
         <div class="side-spacer"></div>
-        <button class="side-btn" id="osSettings" data-tip="Settings" aria-label="Settings">
+        <button class="side-btn" data-view="settings" data-tip="Settings" aria-label="Settings">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
         <button class="side-btn discord" id="osDiscord" data-tip="Community" aria-label="Community">
@@ -141,6 +141,116 @@
             </div>
             <div class="cloud-grid" id="cloudGrid"></div>
             <div class="load-more-wrap" id="cloudMoreWrap" hidden><button class="pill-btn" id="cloudMoreBtn">Load more titles ↓</button></div>
+          </div>
+        </section>
+
+        <!-- ===== SETTINGS ===== -->
+        <section id="view-settings" class="view">
+          <div class="settings-shell">
+            <nav class="settings-nav">
+              <button class="settings-tab active" data-settings-tab="appearance">Appearance</button>
+              <button class="settings-tab" data-settings-tab="privacy">Tab &amp; privacy</button>
+              <button class="settings-tab" data-settings-tab="browser">Browser</button>
+              <button class="settings-tab" data-settings-tab="library">Library</button>
+              <button class="settings-tab" data-settings-tab="links">Share links</button>
+            </nav>
+            <div class="settings-content">
+              <div class="settings-panel active" data-settings-panel="appearance">
+                <h2>Appearance</h2>
+                <p class="settings-lead">Pick a palette. Changes apply instantly and stay on this device.</p>
+                <div class="setting-row">
+                  <div><strong>Theme</strong><span>Color palette for the whole OS</span></div>
+                  <div class="theme-swatches" id="themeSwatches">
+                    <button data-theme="blue" class="swatch blue active" title="Blue"></button>
+                    <button data-theme="cyan" class="swatch cyan" title="Cyan"></button>
+                    <button data-theme="violet" class="swatch violet" title="Violet"></button>
+                    <button data-theme="green" class="swatch green" title="Green"></button>
+                    <button data-theme="slate" class="swatch slate" title="Slate"></button>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div><strong>Custom wallpaper</strong><span>Image URL shown behind the workspace</span></div>
+                  <div class="setting-control"><input id="settingWallpaper" type="text" placeholder="https://…/image.jpg" /><button class="pill-btn" id="clearWallpaper">Remove</button></div>
+                </div>
+                <div class="setting-row">
+                  <div><strong>Compact cards</strong><span>Tighter spacing in game grids</span></div>
+                  <label class="switch"><input type="checkbox" id="settingCompact" /><span></span></label>
+                </div>
+              </div>
+
+              <div class="settings-panel" data-settings-panel="privacy">
+                <h2>Tab &amp; privacy</h2>
+                <p class="settings-lead">Customize how Blox OS appears in your browser tab.</p>
+                <div class="setting-row">
+                  <div><strong>Disguise presets</strong><span>Quick tab titles</span></div>
+                  <div class="preset-chips">
+                    <button data-cloak="Home · School Portal">School portal</button>
+                    <button data-cloak="Documents">Docs</button>
+                    <button data-cloak="Library">Library</button>
+                  </div>
+                </div>
+                <div class="setting-row column">
+                  <div><strong>Custom tab title</strong><span>Leave empty for “Blox OS”</span></div>
+                  <input id="settingCloakTitle" type="text" placeholder="My tab title" />
+                </div>
+                <div class="setting-row column">
+                  <div><strong>Favicon URL</strong><span>Any .ico, .png or data URI</span></div>
+                  <input id="settingCloakIcon" type="text" placeholder="https://…/favicon.png" />
+                </div>
+                <div class="setting-row">
+                  <div><strong>Panic key</strong><span>Press to hide the UI instantly; press again to restore</span></div>
+                  <input id="settingPanicKey" class="short-input" type="text" maxlength="1" value="`" />
+                </div>
+                <div class="setting-actions"><button class="pill-btn primary" id="applyCloak">Apply</button><button class="pill-btn" id="resetCloak">Reset</button></div>
+              </div>
+
+              <div class="settings-panel" data-settings-panel="browser">
+                <h2>Browser</h2>
+                <p class="settings-lead">Search and browsing behaviour.</p>
+                <div class="setting-row">
+                  <div><strong>Search engine</strong><span>Used when you type a phrase instead of a URL</span></div>
+                  <select id="settingSearchEngine">
+                    <option value="duckduckgo">DuckDuckGo</option>
+                    <option value="google">Google</option>
+                    <option value="bing">Bing</option>
+                  </select>
+                </div>
+                <div class="setting-row">
+                  <div><strong>Click sounds</strong><span>Subtle blips when you press buttons</span></div>
+                  <label class="switch"><input type="checkbox" id="settingSounds" /><span></span></label>
+                </div>
+                <div class="setting-row">
+                  <div><strong>In-app proxy on CDN</strong><span>Try rendering sites inside the app instead of a new tab (may look unstyled)</span></div>
+                  <label class="switch"><input type="checkbox" id="settingInAppProxy" /><span></span></label>
+                </div>
+                <p class="settings-note">Full in-app browsing needs the self-hosted server or a tunnel. A static CDN cannot proxy modern sites reliably.</p>
+              </div>
+
+              <div class="settings-panel" data-settings-panel="library">
+                <h2>Library</h2>
+                <p class="settings-lead">Manage data stored in this browser.</p>
+                <div class="setting-row"><div><strong>Custom games</strong><span id="statCustom">0</span></div><button class="pill-btn" id="clearCustomGames">Clear</button></div>
+                <div class="setting-row"><div><strong>Saved games</strong><span id="statSaved">0</span></div><button class="pill-btn" id="clearSavedGames">Clear</button></div>
+                <div class="setting-row"><div><strong>AI chats</strong><span id="statChats">0</span></div><button class="pill-btn" id="clearAiChats">Clear</button></div>
+                <div class="setting-row"><div><strong>Reviews</strong><span id="statReviews">0</span></div><button class="pill-btn" id="clearReviews">Clear local reviews</button></div>
+                <div class="setting-actions"><button class="pill-btn primary" id="exportData">Export data</button></div>
+              </div>
+
+              <div class="settings-panel" data-settings-panel="links">
+                <h2>Share links</h2>
+                <p class="settings-lead">Add your public URL once and use it in the Discord post template.</p>
+                <div class="setting-row column">
+                  <div><strong>Public URL</strong><span>Your github.io, jsDelivr or tunnel link</span></div>
+                  <input id="settingPublicUrl" type="text" placeholder="https://…" />
+                </div>
+                <div class="link-box" id="settingsLinksBox"></div>
+                <div class="setting-actions">
+                  <button class="pill-btn primary" id="saveSettingLinks">Save &amp; refresh</button>
+                  <button class="pill-btn" id="copySettingLinks">Copy links</button>
+                  <a class="pill-btn" href="custom-links.txt" download>Download .txt</a>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
