@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- BLOXOS-BUILD-V5-INAPP-BROWSER -->
+<!-- BLOXOS-BUILD-V7-CLEAN-READER -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blox OS — Browse. Play. Repeat.</title>
@@ -1211,6 +1211,49 @@ function proxifyClient(value, base) {
   } catch { return value; }
 }
 
+function markdownToHtml(md) {
+  const lines = String(md || '').split('\n');
+  let html = '';
+  let inList = false;
+  const inline = (text) => {
+    let s = escapeHtml(text).replace(/\\([\[\]!*])/g, '$1');
+    s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, src) =>
+      src ? `<img src="${src}" alt="${alt}" style="max-width:100%;border-radius:8px" />` : '');
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, label, href) =>
+      label.trim() ? `<a href="${href}" target="_blank" rel="noopener">${label}</a>` : '');
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    return s;
+  };
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) { if (inList) { html += '</ul>'; inList = false; } continue; }
+    if (/^#{1,6}\s/.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      const level = line.match(/^#+/)[0].length;
+      html += `<h${level}>${inline(line.replace(/^#+\s/, ''))}</h${level}>`;
+    } else if (/^[-*]\s/.test(line)) {
+      if (!inList) { html += '<ul>'; inList = true; }
+      html += `<li>${inline(line.slice(2))}</li>`;
+    } else {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<p>${inline(line)}</p>`;
+    }
+  }
+  if (inList) html += '</ul>';
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+    body{background:#0e1a2e;color:#eaf2ff;font:15px/1.6 system-ui,sans-serif;padding:28px;max-width:900px;margin:auto}
+    a{color:#60a5fa}img{border-radius:8px}h1,h2,h3{color:#fff}p{margin:10px 0}li{margin:5px 0}
+  </style></head><body>${html}</body></html>`;
+}
+
+async function fetchViaJina(url) {
+  const res = await fetch('https://r.jina.ai/' + url, { cache: 'no-store' });
+  if (!res.ok) throw new Error('reader ' + res.status);
+  const text = await res.text();
+  if (!text || text.length < 40) throw new Error('empty reader response');
+  return markdownToHtml(text);
+}
+
 function rewriteHtmlClient(html, base) {
   let out = html.replace(/<base\b[^>]*>/gi, '');
   out = out.replace(
@@ -1248,7 +1291,8 @@ async function loadUrl(raw, { push = true } = {}) {
 
   showLoader();
   if (STATIC_MODE) {
-    if (loadSettings().inAppProxy) {
+    {
+      // Always attempt in-app rendering on static hosting.
       frame.style.display = 'block';
       document.getElementById('proxyNotice').hidden = true;
       try {
@@ -1265,7 +1309,16 @@ async function loadUrl(raw, { push = true } = {}) {
         if (openBtn) openBtn.hidden = true;
         return;
       } catch {
-        hideLoader();
+        // Second attempt: use a reader proxy that works from static origins.
+        try {
+          frame.srcdoc = await fetchViaJina(url);
+          hideLoader();
+          const openBtn = document.getElementById('noticeOpenExternal');
+          if (openBtn) openBtn.hidden = true;
+          return;
+        } catch {
+          hideLoader();
+        }
       }
     }
     // Keep the user in the app. Offer a manual new-tab escape hatch instead
