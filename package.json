@@ -1,0 +1,12 @@
+{
+  "name": "proxyplay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A self-hosted web proxy with a built-in game library",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
